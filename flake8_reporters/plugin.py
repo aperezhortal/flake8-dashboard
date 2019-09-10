@@ -193,12 +193,30 @@ class Reporter(base.BaseFormatter):
 
         aggregated_totals.to_pickle("statistics.pickle")
 
+        if self.options.sunburst:
+            import plotly.graph_objs as go
+            import plotly.offline as pyo
+            trace = go.Sunburst(
+                parents=aggregated_totals.parent.values,
+                values=aggregated_totals.errors_count.values,
+                ids=aggregated_totals.path.values,
+                labels=aggregated_totals.id.values,
+                # outsidetextfont = {"size": 20, "color": "#377eb8"},
+                branchvalues='total',
+                marker={"line": {"width": 2}},
+            )
+
+            pyo.iplot([trace])
+
     @classmethod
     def add_options(cls, options):
         """Add a -- option to the OptionsManager."""
+        
         cls.option_manager = options
         options.add_option(
-            '--report',
-            help="Generate a report",
-            parse_from_config=True
+            '--sunburst',
+            help="Generate a report using a sunburst plot",
+            default=False,
+            action="store_true",
+            dest="sunburst"
         )
