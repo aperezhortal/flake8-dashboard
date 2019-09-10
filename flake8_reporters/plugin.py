@@ -62,16 +62,7 @@ class Reporter(base.BaseFormatter):
     def after_init(self):
         """Configure the plugin run."""
 
-        self.files = []
-        self.error_counts = {}
-        self.file_count = 0
         self.errors = []
-        self.by_code = defaultdict(list)
-
-    def beginning(self, filename):
-        """Reset the per-file list of errors."""
-
-        self.file_count += 1
 
     def handle(self, error):
         """Record this error against the current file."""
@@ -115,24 +106,31 @@ class Reporter(base.BaseFormatter):
             lambda _path: os.path.relpath(_path, common_prefix)
         )
 
-        ##########################################
-        # Separate the path in parent and filename
-        # Save the dataframe to a file
-
-        tmp = error_db['path'].apply(os.path.split)
-
-        error_db['parent'] = tmp.apply(lambda x: x[0])
-        error_db['file_name'] = tmp.apply(lambda x: x[1])
-
-        error_db['level'] = error_db['path'].apply(
-            lambda _path: len(PurePath(_path).parts)
-        )
-
         error_db.to_pickle("report.pickle")
 
-        #######################################################
-        # Compute the aggregated statistics by module/directory
+        aggregated_by_folder = self._aggregate_errors_by_folder(error_db)
 
+        aggregated_by_code = self._aggregate_errors_by_code(error_db)
+
+        #
+        # if self.options.sunburst:
+        #     import plotly.graph_objs as go
+        #     import plotly.offline as pyo
+        #     trace = go.Sunburst(
+        #         parents=aggregated_by_folder.parent.values,
+        #         values=aggregated_by_folder.errors_count.values,
+        #         ids=aggregated_by_folder.path.values,
+        #         labels=aggregated_by_folder.id.values,
+        #         # outsidetextfont = {"size": 20, "color": "#377eb8"},
+        #         branchvalues='total',
+        #         marker={"line": {"width": 2}},
+        #     )
+        #
+        #     pyo.iplot([trace])
+
+    @staticmethod
+    def _aggregate_errors_by_folder(error_db):
+        """Compute the aggregated statistics by module/directory."""
         file_info = error_db[['path']].drop_duplicates(subset=['path'])
         file_info.set_index('path', inplace=True)
 
@@ -147,71 +145,94 @@ class Reporter(base.BaseFormatter):
 
         total_errors_by_file = error_db["path"].value_counts()
 
-        aggregated_totals = total_errors_by_file.copy()
+        aggregated_by_folder = total_errors_by_file.copy()
 
         intermediate_paths = file_info["path"].apply(full_split)
 
-        intermediate_paths = tuple(
+        intermediate_paths = set(
             itertools.chain.from_iterable(intermediate_paths.values)
         )
 
-        intermediate_paths = set(intermediate_paths)
-
         for i in intermediate_paths:
             sel = total_errors_by_file.index.get_level_values(0).str.contains(i)
-            aggregated_totals.loc[i] = total_errors_by_file[sel].sum()
+            aggregated_by_folder.loc[i] = total_errors_by_file[sel].sum()
 
-        aggregated_totals = pandas.DataFrame(data=aggregated_totals.values,
-                                             index=aggregated_totals.index,
-                                             columns=["errors_count"])
+        aggregated_by_folder = pandas.DataFrame(data=aggregated_by_folder.values,
+                                                index=aggregated_by_folder.index,
+                                                columns=["errors_count"])
 
-        aggregated_totals['path'] = aggregated_totals.index
+        aggregated_by_folder['path'] = aggregated_by_folder.index
 
-        aggregated_totals.reset_index(inplace=True, drop=True)
+        aggregated_by_folder.reset_index(inplace=True, drop=True)
 
-        aggregated_totals = aggregated_totals[['path', 'errors_count']]
+        aggregated_by_folder = aggregated_by_folder[['path', 'errors_count']]
 
-        tmp = aggregated_totals['path'].apply(os.path.split)
-        aggregated_totals['parent'] = tmp.apply(lambda x: x[0])
+        tmp = aggregated_by_folder['path'].apply(os.path.split)
+        aggregated_by_folder['parent'] = tmp.apply(lambda x: x[0])
         # Keep the last directory/module as id
-        aggregated_totals['id'] = tmp.apply(lambda x: x[1])
+        aggregated_by_folder['id'] = tmp.apply(lambda x: x[1])
 
-        sel = aggregated_totals['parent'] == ""  # Select root path
+        sel = aggregated_by_folder['parent'] == ""  # Select root path
 
-        total_error_count = aggregated_totals.loc[sel, 'errors_count'].sum()
-        aggregated_totals.loc[sel, 'parent'] = "All"
-        aggregated_totals.loc[sel, 'id'] = aggregated_totals.loc[sel, 'path']
+        total_error_count = aggregated_by_folder.loc[sel, 'errors_count'].sum()
+        aggregated_by_folder.loc[sel, 'parent'] = "All"
+        aggregated_by_folder.loc[sel, 'id'] = aggregated_by_folder.loc[sel, 'path']
 
-        aggregated_totals = pandas.concat(
+        aggregated_by_folder = pandas.concat(
             [pandas.DataFrame.from_dict({"path": ["All"],
                                          "errors_count": [total_error_count],
                                          "parent": [""],
                                          "id": ["All"]}),
-             aggregated_totals],
+             aggregated_by_folder],
             ignore_index=True,
             sort=False)
+        return aggregated_by_folder
+        # aggregated_by_folder.to_pickle("statistics.pickle")
 
-        aggregated_totals.to_pickle("statistics.pickle")
+    @staticmethod
+    def _aggregate_errors_by_code(error_db):
+        """Compute the aggregated statistics by error code."""
 
-        if self.options.sunburst:
-            import plotly.graph_objs as go
-            import plotly.offline as pyo
-            trace = go.Sunburst(
-                parents=aggregated_totals.parent.values,
-                values=aggregated_totals.errors_count.values,
-                ids=aggregated_totals.path.values,
-                labels=aggregated_totals.id.values,
-                # outsidetextfont = {"size": 20, "color": "#377eb8"},
-                branchvalues='total',
-                marker={"line": {"width": 2}},
-            )
+        error_codes = error_db.code.value_counts()
+        error_codes = error_codes.reset_index(name="counts")
+        error_codes.rename(columns={"index": "code"}, inplace=True)
+        parents = error_codes['code'].apply(lambda x: (x[0], x[:2]))
+        parents = set(itertools.chain.from_iterable(parents.values))
 
-            pyo.iplot([trace])
+        aggregated_by_code = pandas.DataFrame(columns=error_codes.columns)
+        for i, parent in enumerate(parents):
+            sel = error_codes.code.str.contains(parent)
+            row = [parent, error_codes[sel]['counts'].sum()]
+            aggregated_by_code.loc[i + 1, ['code', 'counts']] = row
+
+        row = ["", error_codes['counts'].sum()]
+        aggregated_by_code.loc[0, ['code', 'counts']] = row
+
+        aggregated_by_code = pandas.concat([error_codes, aggregated_by_code],
+                                           sort=True).reset_index(drop=True)
+
+        def get_parent(code):
+            if len(code) > 2:
+                return code[:2]
+            elif len(code) == 2:
+                return code[0]
+            elif len(code) == 1:
+                return "All"
+            else:
+                return ""
+
+        parents = aggregated_by_code['code'].apply(get_parent)
+        aggregated_by_code['parent'] = parents
+
+        aggregated_by_code.loc[aggregated_by_code['code'] == "", "code"] = 'All'
+        aggregated_by_code.sort_values(['parent'], inplace=True)
+
+        return aggregated_by_code
 
     @classmethod
     def add_options(cls, options):
         """Add a -- option to the OptionsManager."""
-        
+
         cls.option_manager = options
         options.add_option(
             '--sunburst',
