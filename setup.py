@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Setuptools script for flake8-reporters."""
+"""Setuptools script for flake8-dashboard."""
 
 from setuptools import setup, find_packages
 
@@ -13,7 +13,7 @@ requirements = [
 ]
 
 setup(
-    name='flake8-reporters',
+    name='flake8-dashboard',
     version='0.1.0',
     description="Generate different reports of flake8 violations",
     long_description=readme,
@@ -24,11 +24,11 @@ setup(
     license="Apache Software License 2.0",
     entry_points={
         'flake8.report': [
-            'report = flake8_reporters:Reporter',
+            'dashboard = flake8_dashboard:DashboardReporter',
         ]
     },
     zip_safe=False,
-    keywords='flake8 reporters pandas',
+    keywords='flake8 dashboard pandas html',
     classifiers=[
         'Framework :: Flake8',
         'Intended Audience :: Developers',

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""A plugin for flake8 to generate HTML reports."""
+"""A plugin for flake8 to generate HTML dashboard reports."""
 import codecs
 import distutils
 import json
@@ -16,7 +16,7 @@ from jinja2 import Environment, PackageLoader
 from jsmin import jsmin
 
 jinja2_env = Environment(
-    loader=PackageLoader('flake8_reporters')
+    loader=PackageLoader('flake8_dashboard')
 )
 
 # A sequence of error code prefixes
@@ -71,12 +71,12 @@ def full_split(_path):
     return intermediate_paths
 
 
-class Reporter(base.BaseFormatter):
+class DashboardReporter(base.BaseFormatter):
     """A plugin for flake8 to render errors as HTML reports."""
 
     def after_init(self):
         """Configure the plugin run."""
-        self.outdir = self.options.htmldir
+        self.outdir = self.options.outputdir
         create_dir(self.outdir)
         self.errors = []
         self.code_description = defaultdict(lambda: "")
@@ -292,16 +292,10 @@ class Reporter(base.BaseFormatter):
         """Add a -- option to the OptionsManager."""
 
         cls.option_manager = options
+
         options.add_option(
-            '--sunburst',
-            help="Generate a report using a sunburst plot",
-            default=False,
-            action="store_true",
-            dest="sunburst"
-        )
-        options.add_option(
-            '--htmldir',
+            '--outputdir',
             help="Directory in which to write HTML output.",
             parse_from_config=True,
-            default="./flake8_report",
+            default="./flake8_dashboard",
         )

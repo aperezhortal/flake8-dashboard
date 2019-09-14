@@ -4,3 +4,4 @@ wheel==0.29.0
 tox>=2.6.0
 requests
 pandas
+flake8

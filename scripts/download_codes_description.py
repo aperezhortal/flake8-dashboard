@@ -53,5 +53,5 @@ code_description.update(
 
 code_description = json.dumps(code_description, indent=4, sort_keys=True)
 
-with open("../flake8_reporters/code_description.json", 'w') as file:
+with open("../flake8_dashboard/code_description.json", 'w') as file:
     file.write(code_description)
