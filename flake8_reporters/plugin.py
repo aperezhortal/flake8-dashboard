@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
 """A plugin for flake8 to generate HTML reports."""
+import codecs
+import distutils
+import json
 import os
-from collections import defaultdict
-from collections import namedtuple
+from collections import namedtuple, defaultdict
+from distutils.dir_util import copy_tree
 
-import pandas
-from flake8.formatting import base
-from pathlib import PurePath
 import itertools
+import pandas
+import plotly
+from bs4 import BeautifulSoup
+from flake8.formatting import base
+from jinja2 import Environment, PackageLoader
+from jsmin import jsmin
+
+jinja2_env = Environment(
+    loader=PackageLoader('flake8_reporters')
+)
 
 # A sequence of error code prefixes
 # The first matching prefix determines the severity
@@ -27,6 +37,11 @@ SEVERITY_NAMES = [
     'medium',
     'low'
 ]
+
+
+def create_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 def find_severity(code):
@@ -61,8 +76,12 @@ class Reporter(base.BaseFormatter):
 
     def after_init(self):
         """Configure the plugin run."""
-
+        self.outdir = self.options.htmldir
+        create_dir(self.outdir)
         self.errors = []
+        self.code_description = defaultdict(lambda: "")
+        with open(os.path.join(os.path.dirname(__file__), 'code_description.json')) as json_file:
+            self.code_description.update(json.load(json_file))
 
     def handle(self, error):
         """Record this error against the current file."""
@@ -98,7 +117,6 @@ class Reporter(base.BaseFormatter):
 
         file_list = error_db['path'].to_list()
 
-        #########################################
         # Remove the project's root from the path
         common_prefix = os.path.commonprefix(file_list)
 
@@ -108,33 +126,71 @@ class Reporter(base.BaseFormatter):
 
         error_db.to_pickle("report.pickle")
 
+        params = {}
         aggregated_by_folder = self._aggregate_errors_by_folder(error_db)
+        aggregated_by_code = self._aggregate_errors_by_code(error_db, self.code_description)
 
-        aggregated_by_code = self._aggregate_errors_by_code(error_db)
+        plot_id, plot_js = self._construct_plot_js(aggregated_by_folder, "path", "id")
+        params["id_plot_error_by_folder"] = plot_id
+        params["js_plot_error_by_folder"] = plot_js
 
-        #
-        # if self.options.sunburst:
-        #     import plotly.graph_objs as go
-        #     import plotly.offline as pyo
-        #     trace = go.Sunburst(
-        #         parents=aggregated_by_folder.parent.values,
-        #         values=aggregated_by_folder.errors_count.values,
-        #         ids=aggregated_by_folder.path.values,
-        #         labels=aggregated_by_folder.id.values,
-        #         # outsidetextfont = {"size": 20, "color": "#377eb8"},
-        #         branchvalues='total',
-        #         marker={"line": {"width": 2}},
-        #     )
-        #
-        #     pyo.iplot([trace])
+        plot_id, plot_js = self._construct_plot_js(aggregated_by_code, "code", "code",
+                                                   description_column="code_description")
+        params["id_plot_error_by_code"] = plot_id
+        params["js_plot_error_by_code"] = plot_js
+
+        self.write_index(params)
+
+    def write_index(self, params):
+        report_template = jinja2_env.get_template('dashboard.html')
+        rendered = report_template.render(params)
+
+        report_filename = os.path.join(self.outdir, "index.html")
+        with codecs.open(report_filename, 'w', encoding='utf8') as f:
+            f.write(rendered)
+
+        distutils.dir_util.copy_tree(os.path.join(os.path.dirname(__file__), "templates", "assets"),
+                                     os.path.join(self.outdir, "assets"))
+
+    @staticmethod
+    def _construct_plot_js(aggregated_errors, ids_column, labels_column, description_column=None):
+
+        if description_column is not None:
+            descriptions = aggregated_errors[description_column].values
+        else:
+            descriptions = None
+
+        trace = plotly.graph_objs.Sunburst(
+            parents=aggregated_errors['parent'].values,
+            values=aggregated_errors['counts'].values,
+            ids=aggregated_errors[ids_column].values,
+            labels=aggregated_errors[labels_column].values,
+            text=descriptions,
+            branchvalues='total',
+            maxdepth=3,
+            marker={"line": {"width": 2}},
+        )
+
+        layout = plotly.graph_objs.Layout(
+            margin=plotly.graph_objs.layout.Margin(t=0, l=0, r=0, b=0)
+        )
+        fig = plotly.graph_objs.Figure([trace], layout)
+
+        div = plotly.offline.plot(fig,
+                                  config={'responsive': True},
+                                  include_plotlyjs=False,
+                                  output_type='div')
+
+        soup = BeautifulSoup(div, features="html.parser")
+        return soup.div.div['id'], jsmin(soup.div.script.text)
 
     @staticmethod
     def _aggregate_errors_by_folder(error_db):
-        """Compute the aggregated statistics by module/directory."""
+        """Compute the total number of errors aggregated by module/directory."""
         file_info = error_db[['path']].drop_duplicates(subset=['path'])
         file_info.set_index('path', inplace=True)
 
-        file_info['errors_count'] = error_db["path"].value_counts()
+        file_info['counts'] = error_db["path"].value_counts()
 
         file_info.reset_index(level=0, inplace=True)
 
@@ -153,19 +209,19 @@ class Reporter(base.BaseFormatter):
             itertools.chain.from_iterable(intermediate_paths.values)
         )
 
-        for i in intermediate_paths:
-            sel = total_errors_by_file.index.get_level_values(0).str.contains(i)
-            aggregated_by_folder.loc[i] = total_errors_by_file[sel].sum()
+        for _path in intermediate_paths:
+            sel = total_errors_by_file.index.get_level_values(0).str.match(f"^{_path}")
+            aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
         aggregated_by_folder = pandas.DataFrame(data=aggregated_by_folder.values,
                                                 index=aggregated_by_folder.index,
-                                                columns=["errors_count"])
+                                                columns=["counts"])
 
         aggregated_by_folder['path'] = aggregated_by_folder.index
 
         aggregated_by_folder.reset_index(inplace=True, drop=True)
 
-        aggregated_by_folder = aggregated_by_folder[['path', 'errors_count']]
+        aggregated_by_folder = aggregated_by_folder[['path', 'counts']]
 
         tmp = aggregated_by_folder['path'].apply(os.path.split)
         aggregated_by_folder['parent'] = tmp.apply(lambda x: x[0])
@@ -174,24 +230,24 @@ class Reporter(base.BaseFormatter):
 
         sel = aggregated_by_folder['parent'] == ""  # Select root path
 
-        total_error_count = aggregated_by_folder.loc[sel, 'errors_count'].sum()
+        total_error_counts = aggregated_by_folder.loc[sel, 'counts'].sum()
+
         aggregated_by_folder.loc[sel, 'parent'] = "All"
         aggregated_by_folder.loc[sel, 'id'] = aggregated_by_folder.loc[sel, 'path']
 
         aggregated_by_folder = pandas.concat(
             [pandas.DataFrame.from_dict({"path": ["All"],
-                                         "errors_count": [total_error_count],
+                                         "counts": [total_error_counts],
                                          "parent": [""],
                                          "id": ["All"]}),
              aggregated_by_folder],
             ignore_index=True,
             sort=False)
         return aggregated_by_folder
-        # aggregated_by_folder.to_pickle("statistics.pickle")
 
     @staticmethod
-    def _aggregate_errors_by_code(error_db):
-        """Compute the aggregated statistics by error code."""
+    def _aggregate_errors_by_code(error_db, code_description):
+        """Compute the total number of errors aggregated by error code."""
 
         error_codes = error_db.code.value_counts()
         error_codes = error_codes.reset_index(name="counts")
@@ -201,7 +257,7 @@ class Reporter(base.BaseFormatter):
 
         aggregated_by_code = pandas.DataFrame(columns=error_codes.columns)
         for i, parent in enumerate(parents):
-            sel = error_codes.code.str.contains(parent)
+            sel = error_codes.code.str.match(f"^{parent}")
             row = [parent, error_codes[sel]['counts'].sum()]
             aggregated_by_code.loc[i + 1, ['code', 'counts']] = row
 
@@ -227,6 +283,8 @@ class Reporter(base.BaseFormatter):
         aggregated_by_code.loc[aggregated_by_code['code'] == "", "code"] = 'All'
         aggregated_by_code.sort_values(['parent'], inplace=True)
 
+        aggregated_by_code["code_description"] = aggregated_by_code["code"].apply(lambda x: code_description[x])
+
         return aggregated_by_code
 
     @classmethod
@@ -240,4 +298,10 @@ class Reporter(base.BaseFormatter):
             default=False,
             action="store_true",
             dest="sunburst"
+        )
+        options.add_option(
+            '--htmldir',
+            help="Directory in which to write HTML output.",
+            parse_from_config=True,
+            default="./flake8_report",
         )
