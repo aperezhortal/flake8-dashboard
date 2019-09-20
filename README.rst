@@ -6,16 +6,28 @@ A flake8 plugin to generate a HTML dashboard with a report of all the flake8 vio
 
 Installation
 ~~~~~~~~~~~~
-To install the plugin run:
+If flake8 is not installed, run:
 
 .. code-block:: bash
 
-   $ pip install flake8-dasboard
+   $ pip install flake8
+
+If anaconda is used:
+
+.. code-block:: bash
+
+   $ conda install flake8
+
+Finally, to install the plugin run:
+
+.. code-block:: bash
+
+   $ pip install git+https://github.com/aperezhortal/flake8-dashboard
 
 Usage
 ~~~~~
 
-Run flake8 passing the ``--format=dashboard`` option to create a nice looking
+Run flake8 with the ``--format=dashboard`` option to create a nice-looking
 dashboard report in HTML.
 The directory in which to write HTML output can be specified with the ``--outputdir``:
 (by default is "./flake8_dashboard")
@@ -23,7 +35,6 @@ The directory in which to write HTML output can be specified with the ``--output
 .. code-block:: bash
 
    $ flake8 --format=dashboard --outputdir=flake-report
-
 
 Credits
 =======
