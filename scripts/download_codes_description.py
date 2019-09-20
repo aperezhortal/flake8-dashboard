@@ -27,8 +27,8 @@ def parse_documentation(doc_url, tag="div", attributes={}):
 
 
 # Parse flake8 codes's description from documentation
-code_description = parse_documentation('http://flake8.pycqa.org/en/2.5.5/warnings.html',
-                                       attributes={"class": "section", "id": "warning-error-codes"})
+code_description = parse_documentation('http://flake8.pycqa.org/en/3.7.8/user/error-codes.html',
+                                       attributes={"class": "section", "id": "error-violation-codes"})
 
 # Parse pep8 codes's description from documentation
 code_description.update(parse_documentation('https://pep8.readthedocs.io/en/latest/intro.html',
