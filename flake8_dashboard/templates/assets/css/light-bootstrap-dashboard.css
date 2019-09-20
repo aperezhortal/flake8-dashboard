@@ -392,7 +392,7 @@ body > .navbar-collapse .logo p {
 
 .sidebar .logo .simple-text,
 body > .navbar-collapse .logo .simple-text {
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     padding: 5px 0px;
     display: block;
     font-size: 18px;
@@ -535,7 +535,7 @@ body > .navbar-collapse .logo p {
 
 .sidebar .logo .simple-text,
 body > .navbar-collapse .logo .simple-text {
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     padding: 5px 0px;
     display: block;
     font-size: 18px;
@@ -5388,6 +5388,9 @@ License - nucleoapp.com/license/
 
 /* Modifications to Creative Tim's original template for flake8 plugin*/
 /*https://www.sitepoint.com/adapting-your-site-to-different-window-sizes/*/
+.card-img {
+    padding: 20px 20px 20px 20px;
+}
 
 @media screen and (max-width: 991px) {
     /* start of large tablet styles */
@@ -5409,4 +5412,5 @@ License - nucleoapp.com/license/
     .card {
         height: 300px;
     }
+
 }

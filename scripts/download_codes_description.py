@@ -38,7 +38,7 @@ code_description.update(parse_documentation('https://pep8.readthedocs.io/en/late
 code_description.update(parse_documentation('https://github.com/PyCQA/pep8-naming/blob/master/README.rst',
                                             tag="table"))
 
-# Mccabe codes? TODO
+# Todo: add Mccabe codes and http://www.pydocstyle.org/en/2.1.1/error_codes.html
 
 code_description.update(
     {

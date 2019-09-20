@@ -1,0 +1,200 @@
+<!-- 
+Template based in the following dashboard template:
+
+=========================================================
+ Light Bootstrap Dashboard - v2.0.1
+=========================================================
+
+ Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard
+ Copyright 2019 Creative Tim (https://www.creative-tim.com)
+ Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard/blob/master/LICENSE)
+
+ Coded by Creative Tim
+=========================================================
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+    <title>Flake8 Dashboard</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+          name='viewport'/>
+
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="assets/css/light-bootstrap-dashboard.css?v=2.0.0 " rel="stylesheet"/>
+</head>
+
+<body>
+<div class="wrapper">
+    <div class="sidebar">
+        <div class="sidebar-wrapper">
+            <div class="logo">
+                <a class="simple-text">
+                    flake8-dashboard
+                </a>
+            </div>
+            <ul class="nav">
+
+                <li class="nav-item active">
+                    <h4 class="card-title text-center">Report summary</h4>
+
+                    {% if errors_found %}
+                        <p class="card-category text-center">{{ files_analized }} files analyzed.</p>
+                        <p class="card-category text-center">{{ total_errors }} warnings/errors found.</p>
+                        <img class="card-img w-50 mx-auto d-block" src="./assets/img/CheckFailed.svg"
+                             alt="CheckFailed.svg">
+                    {% else %}
+                        <p class="card-category text-center">No warnings or errors found!</p>
+                        <p class="card-category text-center">{{ total_errors }} files analyzed.</p>
+
+                        <img class="card-img w-50 mx-auto d-block" src="./assets/img/CheckPassed.svg"
+                             alt="CheckPassed.svg">
+                    {% endif %}
+                </li>
+
+            </ul>
+        </div>
+    </div>
+    <div class="main-panel">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg " color-on-scroll="500">
+            <div class="container-fluid">
+
+                <a class="navbar-brand">Flake8 Report for <b>{{ common_prefix }}</b></a>
+
+            </div>
+        </nav>
+        <!-- End Navbar -->
+
+        <div class="content">
+            <div class="container-fluid">`
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title text-center">Report summary</h4>
+                                {% if errors_found %}
+                                    <p class="card-category text-center">{{ total_errors }} warnings/errors found.</p>
+                                {% else %}
+                                    <p class="card-category text-center">No warnings or errors found
+                                        in {{ files_analized }} files
+                                        analyzed!</p>
+                                    <img class="card-img w-50 mx-auto d-block" src="./assets/img/CheckPassed.svg"
+                                         alt="CheckPassed.svg">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if errors_found %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-center">Warnings and errors by severity</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="{{ id_severity_pie_plot }}"
+                                         class="plotly-graph-div"
+                                         style="height:100%; width:100%;">
+                                    </div>
+                                </div>
+                                <p class="card-category text-center"><b>High:</b>SyntaxError, IndentationError, IOError,
+                                    and PyFlakes errors</p>
+                                <p class="card-category text-center"><b>Medium:</b>Pep8 and McCabe complexity errors</p>
+                                <p class="card-category text-center"><b>Low:</b>'Docstrings format errors'</p>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-center"> Code rating </h4>
+                                </div>
+                                <div class="card-body ">
+                                    <div id="{{ id_plot_code_rating }}"
+                                         class="plotly-graph-div"
+                                         style="height:100%; width:100%;">
+                                    </div>
+                                </div>
+                                <p class="card-category text-center"> The quality is computed as: </p>
+                                <p class="card-category text-center"> 10.0 - 10*((5*error + warning + refactor +
+                                    convention+ documentation*0.25) / statement) </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-center">Warnings and errors by directory/module</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="{{ id_plot_error_by_folder }}"
+                                         class="plotly-graph-div"
+                                         style="height:100%; width:100%;">
+                                    </div>
+                                </div>
+                                <p class="card-category text-center"> Branch's values indicate the numbers of errors
+                                    found</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-center">Warnings and errors by error code</h4>
+                                </div>
+                                <div class="card-body ">
+                                    <div id="{{ id_plot_error_by_code }}"
+                                         class="plotly-graph-div"
+                                         style="height:100%; width:100%;">
+                                    </div>
+                                </div>
+                                <p class="card-category text-center"> Branch's values indicate the numbers of errors
+                                    found</p>
+                            </div>
+                        </div>
+
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="container-fluid">
+                <nav>
+                    <p class="copyright text-center">
+                        Dashboard created with the flake8-dashboard plugin.
+                    </p>
+                </nav>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+<!--   Core JS Files   -->
+<script src="assets/js/core/jquery.3.2.1.min.js" type="text/javascript"></script>
+<script src="assets/js/core/popper.min.js" type="text/javascript"></script>
+<script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="assets/js/light-bootstrap-dashboard.js?v=2.0.0 " type="text/javascript"></script>
+
+{% if errors_found %}
+    <script src="assets/js/plotly-latest.min.js"></script>
+    <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+    <script type="text/javascript">{{ js_severity_pie_plot }}</script>
+    <script type="text/javascript">{{ js_plot_error_by_folder }}</script>
+    <script type="text/javascript">{{ js_plot_error_by_code }}</script>
+    <script type="text/javascript">{{ js_plot_code_rating }}</script>
+
+{% endif %}
+</html>
