@@ -19,10 +19,12 @@ def parse_documentation(doc_url, tag="div", attributes={}):
         if len(columns) > 0:
             error_code = columns[0].text
             error_code = error_code.strip()
+            if len(error_code) > 4:
+                error_code = error_code[:4]
+
             if len(error_code) > 0:
-                if len(error_code) > 4:
-                    error_code = error_code[:5]
                 code_descriptions[error_code] = columns[1].text
+
     return code_descriptions
 
 
@@ -42,8 +44,8 @@ code_description.update(parse_documentation('https://github.com/PyCQA/pep8-namin
 
 code_description.update(
     {
-        'E': 'pep8',
-        'W': 'pep8',
+        'E': 'pep8 error',
+        'W': 'pep8 warning',
         'F': 'pyFlakes',
         'C': 'McCabe complexity',
         'C9': 'McCabe complexity',
