@@ -250,11 +250,11 @@ class DashboardReporter(base.BaseFormatter):
                         'Reasonable quality',
                         'Great code!'],
                 values=[1, 1, 1],
-                hoverinfo=None,
-                textinfo=None,
+                hoverinfo='none',
+                textinfo='none',
                 text=None,
-                domain={'x': [-0, 0.], 'y': [0.0, 0.]},
-                visible=False,
+                domain={'x': [0, 0.], 'y': [0.0, 0.]},
+                visible=True,
                 marker=dict(colors=['#ff0000', '#0000ff', '#00ff00'])
             )
 
@@ -289,7 +289,7 @@ class DashboardReporter(base.BaseFormatter):
             params["id_plot_code_rating"] = plot_id
             params["js_plot_code_rating"] = plot_js
 
-        self.write_index(params)
+            self.write_index(params)
 
     def write_index(self, params):
         report_template = jinja2_env.get_template('index.html')
@@ -310,7 +310,7 @@ class DashboardReporter(base.BaseFormatter):
             values=values,
             hoverinfo='label+text',
             textinfo='text',
-            text=[f"{value}<br>({value * 100 / total:.2g}%)" for value in values],
+            text=[f"{value}<br>({value * 100 / total:.3g}%)" for value in values],
             textfont=dict(size=22),
             marker={"line": {"width": 2}},
         )
