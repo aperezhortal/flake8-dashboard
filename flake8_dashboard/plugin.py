@@ -176,8 +176,6 @@ class DashboardReporter(base.BaseFormatter):
                 lambda x: max(0, x)
             )
 
-            errors_by_folder_or_file.to_pickle("quality.pickle")
-
             ############################################################################################################
             # Sunburst plot of number of errors by directory and file
 
@@ -209,7 +207,7 @@ class DashboardReporter(base.BaseFormatter):
             )
 
             errors_by_folder_or_file.loc['All', 'level'] = 0
-            errors_by_folder_or_file = errors_by_folder_or_file.sort_values(['level'])
+            errors_by_folder_or_file.sort_values(['level'], inplace=True)
 
             # Before plotting we compute each sector size in a way that at each level, the sector size is the
             # same for all the elements in that level.
@@ -219,15 +217,34 @@ class DashboardReporter(base.BaseFormatter):
             for path, parent in errors_by_folder_or_file['parent'].iteritems():
                 if parent == "":
                     sector_by_parent[parent] = 1
-                    errors_by_folder_or_file.loc[path, 'sector_size'] = 1
+                    errors_by_folder_or_file.loc[path, 'sector_size'] = 1000
                 elif parent == "All":
-                    errors_by_folder_or_file.loc[path, 'sector_size'] = 1 / n_childs[parent]
+                    errors_by_folder_or_file.loc[path, 'sector_size'] = 1000 / n_childs[parent]
                 else:
                     errors_by_folder_or_file.loc[path, 'sector_size'] = (
                             errors_by_folder_or_file.loc[parent, 'sector_size'] / n_childs[parent]
                     )
+            # The resulting sector sizes have rounding errors due to the floating point operations.
+            # But, the sunburst plot needs the total value for node (parent) bigger or equal than the sum of its children.
+            # In some cases, the values were slightly smaller and the plot was not shown.
+            # This is a fix that by adding a small margin to each node.
+            errors_by_folder_or_file.sort_values(['level'], ascending=False, inplace=True)
+            levels = errors_by_folder_or_file['level']
+            max_level = levels.max()
 
-            # Add colorbar
+            for parent in errors_by_folder_or_file.parent.unique():
+
+                if parent == '':
+                    continue
+
+                percentual_diff = (max_level - levels[parent]) * 1e-5
+                diff_sector_size = errors_by_folder_or_file.loc[parent, 'sector_size'] * percentual_diff
+
+                errors_by_folder_or_file.loc[parent, 'sector_size'] += diff_sector_size
+
+            errors_by_folder_or_file.to_pickle("quality.pickle")
+
+            # Add a colorbar
             dummy_colorbar_trace = plotly.graph_objs.Pie(
                 labels=['Needs cleanup',
                         'Reasonable quality',
