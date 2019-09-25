@@ -4,7 +4,7 @@
 import os
 
 import numpy as np
-from astroid import MANAGER
+from astroid import MANAGER, AstroidSyntaxError
 
 
 class ASTWalker:
@@ -24,8 +24,11 @@ class ASTWalker:
 
     def count_statements(self, filepath):
         self.nbstatements = 0
-        ast_node = MANAGER.ast_from_file(filepath, source=True)
-        self._walk(ast_node)
+        try:
+            ast_node = MANAGER.ast_from_file(filepath, source=True)
+            self._walk(ast_node)
+        except AstroidSyntaxError:
+            self.nbstatements = np.nan
         return self.nbstatements
 
     def _walk(self, astroid_node):
