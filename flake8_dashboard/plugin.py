@@ -158,6 +158,8 @@ class DashboardReporter(base.BaseFormatter):
 
             self.statements_per_file['n_files'] = 1
 
+            ############################################################################################################
+            # Sunburst plot of number of errors by directory and file
             statements_by_folder = self._aggregate_by_folder_or_file(self.statements_per_file,
                                                                      logic="sum")
             errors_by_folder_or_file.rename(columns={"counts": "error_counts"}, inplace=True)
@@ -172,12 +174,10 @@ class DashboardReporter(base.BaseFormatter):
             errors_by_folder_or_file['rating'] = (
                     10.0 - 10 * ((error_penalty + warnings_penalty + low_severity_warnings_penalty) / statements))
 
+            errors_by_folder_or_file['rating'].fillna(0, inplace=True)
             errors_by_folder_or_file['rating'] = errors_by_folder_or_file['rating'].apply(
                 lambda x: max(0, x)
             )
-
-            ############################################################################################################
-            # Sunburst plot of number of errors by directory and file
 
             plot_id, plot_js = self._create_sunburst_plot_js(parents=errors_by_folder_or_file['parent'],
                                                              values=errors_by_folder_or_file['error_counts'],
@@ -225,7 +225,8 @@ class DashboardReporter(base.BaseFormatter):
                             errors_by_folder_or_file.loc[parent, 'sector_size'] / n_childs[parent]
                     )
             # The resulting sector sizes have rounding errors due to the floating point operations.
-            # But, the sunburst plot needs the total value for node (parent) bigger or equal than the sum of its children.
+            # But, the sunburst plot needs the total value for node (parent) bigger or equal than the sum of
+            # its children.
             # In some cases, the values were slightly smaller and the plot was not shown.
             # This is a fix that by adding a small margin to each node.
             errors_by_folder_or_file.sort_values(['level'], ascending=False, inplace=True)
@@ -400,7 +401,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         for _path in intermediate_paths:
-            sel = total_errors_by_file.index.get_level_values(0).str.match(f"^{_path}")
+            sel = total_errors_by_file.index.get_level_values(0).str.match(f"^{_path}\/")
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
         aggregated_by_folder['path'] = aggregated_by_folder.index
@@ -424,20 +425,6 @@ class DashboardReporter(base.BaseFormatter):
         aggregated_by_folder.loc["All", "label"] = "All"
         aggregated_by_folder.loc["All", "parent"] = ""
 
-        # data_dict = dict()
-        # aggregated_by_folder = pandas.concat(
-        #
-        #     [pandas.DataFrame.from_dict({"path": ["All"],
-        #                                  "counts": [total_error_counts],
-        #                                  "n_files": [len(files_names)],
-        #                                  "parent": [""],
-        #                                  "id": ["All"]}),
-        #      aggregated_by_folder],
-        #     ignore_index=True,
-        #     sort=False)
-        #
-        # aggregated_by_folder.set_index('path', drop=False, inplace=True)
-        # aggregated_by_folder['n_files'] = aggregated_by_folder['n_files'].astype(int)
         return aggregated_by_folder
 
     @staticmethod
