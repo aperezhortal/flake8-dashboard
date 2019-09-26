@@ -134,7 +134,9 @@ class DashboardReporter(base.BaseFormatter):
                 lambda _path: os.path.relpath(_path, common_prefix)
             )
 
-            error_db.to_pickle("report.pickle")
+            if self.options.debug_info:
+                error_db.to_pickle(os.path.join(self.options.outputdir,
+                                                "report.csv"))
 
             error_severity = error_db.severity.apply(lambda x: SEVERITY_NAMES[x])
             error_severity = pandas.DataFrame(error_severity.value_counts())
@@ -243,7 +245,10 @@ class DashboardReporter(base.BaseFormatter):
 
                 errors_by_folder_or_file.loc[parent, 'sector_size'] += diff_sector_size
 
-            errors_by_folder_or_file.to_pickle("quality.pickle")
+            if self.options.debug_info:
+                errors_by_folder_or_file.to_pickle(
+                    os.path.join(self.options.outputdir, "quality.csv")
+                )
 
             # Add a colorbar
             dummy_colorbar_trace = plotly.graph_objs.Pie(
@@ -474,7 +479,7 @@ class DashboardReporter(base.BaseFormatter):
 
     @classmethod
     def add_options(cls, options):
-        """Add a -- option to the OptionsManager."""
+        """Add options to the OptionsManager."""
 
         cls.option_manager = options
 
@@ -483,4 +488,12 @@ class DashboardReporter(base.BaseFormatter):
             help="Directory in which to write HTML output.",
             parse_from_config=True,
             default="./flake8_dashboard",
+        )
+
+        options.add_option(
+            '--debug_info',
+            help="Write debugging information",
+            parse_from_config=True,
+            default=False,
+            action="store_true"
         )
