@@ -30,11 +30,22 @@ Usage
 Run flake8 with the ``--format=dashboard`` option to create a nice-looking
 dashboard report in HTML.
 The directory in which to write HTML output can be specified with the ``--outputdir``:
-(by default is "./flake8_dashboard")
+(by default is "./flake8_dashboard").
+Additionally, debuggin information (flake8 violations and aggregations) can
+be saved as csv format passing the ``--debug-info`` option.
+
+Simple usage example:
 
 .. code-block:: bash
 
    $ flake8 --format=dashboard --outputdir=flake-report
+
+
+Demo
+~~~~
+
+`Check a demo here! <example_dashboard/index.html>`_
+
 
 Credits
 =======

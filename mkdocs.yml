@@ -1,0 +1,5 @@
+site_name: flake8-dashboard documentation
+
+nav:
+  - Home: index.md
+  - Demo : example_dashboard/index.html
