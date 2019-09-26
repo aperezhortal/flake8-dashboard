@@ -29,11 +29,11 @@ Usage
 -----
 
 Run flake8 with the `--format=dashboard` option to create a nice-looking
-dashboard report in HTML. The directory in which to write HTML output
-can be specified with the `--outputdir`: (by default is
-\"./flake8\_dashboard\"). Additionally, debuggin information (flake8
-violations and aggregations) can be saved as csv format passing the
-`--debug-info` option.
+The directory in which to write HTML output can be specified with the
+`--outputdir`: (by default is \"./flake8\_dashboard\"). A title to the
+dashboard can be added using the `--title=my_title`. Additionally,
+debugging information (flake8 violations and aggregations) can be saved
+as csv format passing the `--debug-info` option.
 
 Simple usage example:
 

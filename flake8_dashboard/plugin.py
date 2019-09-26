@@ -121,7 +121,10 @@ class DashboardReporter(base.BaseFormatter):
 
             # Remove the project's root from the path
             common_prefix = os.path.commonprefix(file_list)
-            params["common_prefix"] = os.path.abspath(common_prefix)
+            if self.options.title is None:
+                params["dashboard_title"] = os.path.abspath(common_prefix)
+            else:
+                params["dashboard_title"] = self.options.title
 
             error_db['path'] = error_db['path'].apply(
                 lambda _path: os.path.relpath(_path, common_prefix)
@@ -496,4 +499,11 @@ class DashboardReporter(base.BaseFormatter):
             parse_from_config=True,
             default=False,
             action="store_true"
+        )
+
+        options.add_option(
+            '--title',
+            help="Title",
+            parse_from_config=True,
+            default=None,
         )
