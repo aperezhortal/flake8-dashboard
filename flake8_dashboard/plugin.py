@@ -491,7 +491,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         options.add_option(
-            '--debug_info',
+            '--debug-info',
             help="Write debugging information",
             parse_from_config=True,
             default=False,
