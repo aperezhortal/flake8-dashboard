@@ -44,7 +44,7 @@ Simple usage example:
 Demo
 ~~~~
 
-`Check a demo here! <example_dashboard/index.html>`_
+`Check a demo here! <https://aperezhortal.github.io/flake8-dashboard/example_dashboard/index.html>`_
 
 
 Credits
