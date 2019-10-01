@@ -5,40 +5,43 @@ flake8-dashboard
 A flake8 plugin to generate a HTML dashboard with a report of all the flake8 violations.
 
 Installation
-~~~~~~~~~~~~
+============
+
 If flake8 is not installed, run:
 
 .. code-block:: bash
 
    $ pip install flake8
 
-If anaconda is used:
+Finally, to install the latest release of the plugin from the
+Python Package Index, run:
 
 .. code-block:: bash
 
-   $ conda install flake8
+   $ pip install flake8-dashboard
 
-Finally, to install the plugin run:
+Or to install the latest development version (master branch), run:
 
 .. code-block:: bash
 
    $ pip install git+https://github.com/aperezhortal/flake8-dashboard
 
 Usage
-~~~~~
+=====
 
-Run flake8 with the ``--format=dashboard`` option to create a nice-looking
-The directory in which to write HTML output can be specified with the ``--outputdir``:
-(by default is "./flake8_dashboard").
-A title to the dashboard can be added using the ``--title=my_title``.
-Additionally, debugging information (flake8 violations and aggregations) can
-be saved as csv format passing the ``--debug-info`` option.
+Run flake8 with the ``--format=dashboard`` option to create a nice-looking dashboard.
+
+Options:
+
+- ``--outputdir``: Directory to save the HTML output ("./flake8_dashboard" by default).
+- ``--debug-info``: Write additional debugging information as csv format (flake8 violations and aggregations).
+- ``--title=<title>``: Set the dashboard's title. No title by default.
 
 Simple usage example:
 
 .. code-block:: bash
 
-   $ flake8 --format=dashboard --outputdir=flake-report
+   $ flake8 --format=dashboard --outputdir=flake-report --title="My dashboard"
 
 
 Demo

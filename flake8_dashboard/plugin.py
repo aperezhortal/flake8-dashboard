@@ -488,14 +488,14 @@ class DashboardReporter(base.BaseFormatter):
 
         options.add_option(
             '--outputdir',
-            help="Directory in which to write HTML output.",
+            help="Directory to save the HTML output.",
             parse_from_config=True,
             default="./flake8_dashboard",
         )
 
         options.add_option(
             '--debug-info',
-            help="Write debugging information",
+            help="Write additional debugging information as csv format.",
             parse_from_config=True,
             default=False,
             action="store_true"
@@ -503,7 +503,7 @@ class DashboardReporter(base.BaseFormatter):
 
         options.add_option(
             '--title',
-            help="Title",
+            help="Set the dashboard's title. No title by default.",
             parse_from_config=True,
             default=None,
         )
