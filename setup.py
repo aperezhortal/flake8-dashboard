@@ -9,7 +9,14 @@ with open('README.rst') as readme_file:
 
 requirements = [
     'pygments>=2.2.0',
-    'flake8>=3.3.0'
+    'flake8>=3.3.0',
+    'plotly',
+    'beautifulsoup4',
+    'jsmin',
+    'jinja2',
+    'requests',
+    'pandas',
+    'astroid>=2.2.5'
 ]
 
 setup(
