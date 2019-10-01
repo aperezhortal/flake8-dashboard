@@ -34,6 +34,7 @@ setup(
             'dashboard = flake8_dashboard:DashboardReporter',
         ]
     },
+    python_requires='>=3.6',
     zip_safe=False,
     keywords='flake8 dashboard pandas html',
     classifiers=[
