@@ -13,13 +13,14 @@ If flake8 is not installed, run:
 $ pip install flake8
 ```
 
-If anaconda is used:
+Finally, to install the latest release of the plugin from the Python
+Package Index, run:
 
 ``` {.bash}
-$ conda install flake8
+$ pip install flake8-dashboard
 ```
 
-Finally, to install the plugin run:
+Or to install the latest development version (master branch), run:
 
 ``` {.bash}
 $ pip install git+https://github.com/aperezhortal/flake8-dashboard
@@ -29,27 +30,32 @@ Usage
 -----
 
 Run flake8 with the `--format=dashboard` option to create a nice-looking
-The directory in which to write HTML output can be specified with the
-`--outputdir`: (by default is \"./flake8\_dashboard\"). A title to the
-dashboard can be added using the `--title=my_title`. Additionally,
-debugging information (flake8 violations and aggregations) can be saved
-as csv format passing the `--debug-info` option.
+dashboard.
+
+Options:
+
+-   `--outputdir=<output_dir>`: Directory to save the HTML output
+    (\"./flake8\_dashboard\" by default).
+-   `--debug-info`: Write additional debugging information as csv format
+    (flake8 violations and aggregations).
+-   `--title=<title>`: Set the dashboard\'s title. No title by default.
 
 Simple usage example:
 
 ``` {.bash}
-$ flake8 --format=dashboard --outputdir=flake-report
+$ flake8 --format=dashboard --outputdir=flake-report --title="My dashboard"
 ```
 
-Demo
-----
+### Demo
 
-[Check a demo here!](example_dashboard/index.html)
+[Check a demo
+here!](https://aperezhortal.github.io/flake8-dashboard/example_dashboard/index.html)
 
-### Credits
+Credits
+-------
 
 -   This package was created using the
-    [flake8-html](https://github.com/lordmauve/flake8-html) as a
+    [flake8-html](https://github.com/lordmauve/flake8-html) package as a
     template.
 -   The dashboard html page was created using the
     [light-bootstrap-dashboard](https://demos.creative-tim.com/light-bootstrap-dashboard/)
