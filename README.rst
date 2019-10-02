@@ -53,7 +53,7 @@ Demo
 Credits
 =======
 
-- This package was created using the `flake8-html`_ as a template.
+- This package was created using the `flake8-html`_ package as a template.
 
 - The dashboard html page was created using the
   `light-bootstrap-dashboard`_ template by `Creative Tim`_.
