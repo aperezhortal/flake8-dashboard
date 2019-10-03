@@ -40,6 +40,9 @@ SEVERITY_NAMES[1] = 'High'
 SEVERITY_NAMES[2] = 'Medium'
 SEVERITY_NAMES[3] = 'Low'
 
+# red, blue, green
+SEVERITY_COLORS = dict(High='#EF553B', Medium='#636EFA', Low='#00CC96')
+
 SEVERITY_DESCRIPTION = dict()
 SEVERITY_DESCRIPTION[1] = 'SyntaxError, IndentationError, IOError, and PyFlakes errors'
 SEVERITY_DESCRIPTION[2] = 'Pep8 and McCabe complexity errors'
@@ -56,6 +59,9 @@ def find_severity(code):
 
 class DashboardReporter(base.BaseFormatter):
     """A plugin for flake8 to render errors as HTML reports."""
+
+    def format(self, error):
+        pass
 
     def __init__(self, *args, **kwargs):
         """ Initialize the formatter."""
@@ -140,6 +146,9 @@ class DashboardReporter(base.BaseFormatter):
             if self.options.debug_info:
                 error_db.to_pickle(os.path.join(self.options.outputdir,
                                                 "report.csv"))
+
+            ############################################################################################################
+            # Pie plot with errors by severity
 
             error_severity = error_db.severity.apply(lambda x: SEVERITY_NAMES[x])
             error_severity = pandas.DataFrame(error_severity.value_counts())
@@ -253,20 +262,6 @@ class DashboardReporter(base.BaseFormatter):
                     os.path.join(self.options.outputdir, "quality.csv")
                 )
 
-            # Add a colorbar
-            dummy_colorbar_trace = plotly.graph_objs.Pie(
-                labels=['Needs cleanup',
-                        'Reasonable quality',
-                        'Great code!'],
-                values=[1, 1, 1],
-                hoverinfo='none',
-                textinfo='none',
-                text=None,
-                domain={'x': [0, 0.], 'y': [0.0, 0.]},
-                visible=True,
-                marker=dict(colors=['#ff0000', '#0000ff', '#00ff00'])
-            )
-
             plot_id, plot_js = self._create_sunburst_plot_js(
                 parents=errors_by_folder_or_file['parent'],
                 values=errors_by_folder_or_file['sector_size'],
@@ -280,7 +275,6 @@ class DashboardReporter(base.BaseFormatter):
                             errors_by_folder_or_file[
                                 'rating'].values / 10),
                         },
-                extra_traces=[dummy_colorbar_trace],
                 layout_kwargs=dict(xaxis=dict(visible=False, showgrid=False),
                                    yaxis=dict(visible=False, showgrid=False, showline=False),
                                    plot_bgcolor="#fff",
@@ -313,35 +307,33 @@ class DashboardReporter(base.BaseFormatter):
 
     @staticmethod
     def _create_pie_plot_js(labels, values):
-        total = values.sum()
+        colors = [SEVERITY_COLORS[sev] for sev in labels]
         trace = plotly.graph_objs.Pie(
             labels=labels,
             values=values,
             hoverinfo='label+text',
             textinfo='text',
-            text=[f"{value}<br>({value * 100 / total:.3g}%)" for value in values],
+            text=[f"{value}<br>({value * 100 / values.sum():.3g}%)" for value in values],
             textfont=dict(size=22),
-            marker={"line": {"width": 2}},
+            marker={"line": {"width": 2},
+                    "colors": colors},
         )
 
         layout = plotly.graph_objs.Layout(
-            margin=plotly.graph_objs.layout.Margin(t=0, l=0, r=0, b=0),
-            font=dict(size=18, color='#7f7f7f'),
-            legend={'orientation': 'h',
-                    'font': dict(size=22),
-                    'x': 0.5,
-                    'y': 1.02,
-                    'xanchor': 'center',
-                    'yanchor': 'bottom',
-                    }
+            margin=plotly.graph_objs.layout.Margin(t=1, l=1, r=1, b=1),
+            showlegend=False,
         )
 
         fig = plotly.graph_objs.Figure([trace], layout)
 
-        div = plotly.offline.plot(fig,
-                                  config={'responsive': True},
-                                  include_plotlyjs=False,
-                                  output_type='div')
+        div = plotly.offline.plot(
+            fig,
+            config={'responsive': True,
+                    'displaylogo': False,
+                    'modeBarButtonsToRemove': ['sendDataToCloud',
+                                               'hoverClosestPie']},
+            include_plotlyjs=False,
+            output_type='div')
 
         soup = BeautifulSoup(div, features="html.parser")
         return soup.div.div['id'], jsmin(soup.div.script.text)
@@ -369,10 +361,14 @@ class DashboardReporter(base.BaseFormatter):
         )
         fig = plotly.graph_objs.Figure([trace] + extra_traces, layout)
 
-        div = plotly.offline.plot(fig,
-                                  config={'responsive': True},
-                                  include_plotlyjs=False,
-                                  output_type='div')
+        div = plotly.offline.plot(
+            fig,
+            config={'responsive': True,
+                    'displaylogo': False,
+                    'modeBarButtonsToRemove': ['sendDataToCloud',
+                                               'toggleHover']},
+            include_plotlyjs=False,
+            output_type='div')
 
         soup = BeautifulSoup(div, features="html.parser")
         return soup.div.div['id'], jsmin(soup.div.script.text)

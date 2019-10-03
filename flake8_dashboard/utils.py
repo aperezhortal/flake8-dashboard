@@ -137,10 +137,10 @@ def map_values_to_cmap(values, colormap=None, discrete=True):
 
     if colormap is None:
         colormap = np.asarray([
-            [0.0, 255, 0, 0],  # red
-            [0.5, 0, 0, 255],  # blue
-            [0.75, 0, 255, 0],  # green
-            [1.0, 0, 255, 0],  # green
+            [0.0, 239, 85, 59],  # red
+            [0.5, 99, 110, 250],  # blue
+            [0.75, 0, 204, 150],  # green
+            [1.0, 0, 204, 150],  # green
         ])
 
         # 0.0-0.5 red!

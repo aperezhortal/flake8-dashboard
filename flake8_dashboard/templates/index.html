@@ -27,6 +27,10 @@ Template based in the following dashboard template:
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
           name='viewport'/>
 
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css"/>
+
     <link href="assets/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="assets/css/light-bootstrap-dashboard.css?v=2.0.0 " rel="stylesheet"/>
 </head>
@@ -99,35 +103,51 @@ Template based in the following dashboard template:
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title text-center">Warnings and errors by severity</h4>
+                                    <h2 class="card-title text-center">Violations by severity</h2>
                                 </div>
-                                <div class="card-body">
+
+                                <div class="card-body card-plot">
                                     <div id="{{ id_severity_pie_plot }}"
                                          class="plotly-graph-div"
                                          style="height:100%; width:100%;">
                                     </div>
                                 </div>
+                                <div class="card-body">
+                                    <div class="legend">
+                                        <span class="nowrap"><i class="fa fa-square severity-high"></i> High</span>
+                                        <span class="nowrap"><i class="fa fa-square severity-medium"></i> Medium</span>
+                                        <span class="nowrap"><i class="fa fa-square severity-low"></i> Low</span>
+                                    </div>
+                                </div>
                                 <p class="card-category text-center"><b>High:</b>SyntaxError, IndentationError, IOError,
                                     and PyFlakes errors</p>
                                 <p class="card-category text-center"><b>Medium:</b>Pep8 and McCabe complexity errors</p>
-                                <p class="card-category text-center"><b>Low:</b>'Docstrings format errors'</p>
+                                <p class="card-category text-center"><b>Low:</b>Docstrings format errors</p>
 
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title text-center"> Code rating </h4>
+                                    <h2 class="card-title text-center"> Code rating </h2>
                                 </div>
-                                <div class="card-body ">
+                                <div class="card-body card-plot">
                                     <div id="{{ id_plot_code_rating }}"
                                          class="plotly-graph-div"
                                          style="height:100%; width:100%;">
                                     </div>
                                 </div>
-                                <p class="card-category text-center"> The quality is computed as: </p>
-                                <p class="card-category text-center"> 10.0 - 10*((5*error + warning + refactor +
-                                    convention+ documentation*0.25) / statement) </p>
+                                <div class="card-body">
+                                    <div class="legend">
+                                        <span class="nowrap"><i class="fa fa-square severity-high"></i> Needs cleanup</span>
+                                        <span class="nowrap"><i class="fa fa-square severity-medium"></i> Reasonable quality</span>
+                                            <span class="nowrap"><i class="fa fa-square severity-low"></i> Great code!</span>
+                                    </div>
+                                </div>
+                                <p class="card-category text-center"><b>rating=10.0 - 10*((5*error + warning + refactor
+                                    +
+                                    convention+ documentation*0.25) / statement)</b></p>
+
                             </div>
                         </div>
 
@@ -136,30 +156,30 @@ Template based in the following dashboard template:
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title text-center">Warnings and errors by directory/module</h4>
+                                    <h2 class="card-title text-center">Violations by module</h2>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body card-plot">
                                     <div id="{{ id_plot_error_by_folder }}"
                                          class="plotly-graph-div"
                                          style="height:100%; width:100%;">
                                     </div>
                                 </div>
-                                <p class="card-category text-center"> Branch's values indicate the numbers of errors
+                                <p class="card-category text-center"> Branch's values indicate the number of errors
                                     found</p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title text-center">Warnings and errors by code</h4>
+                                    <h2 class="card-title text-center">Violations by code</h2>
                                 </div>
-                                <div class="card-body ">
+                                <div class="card-body card-plot">
                                     <div id="{{ id_plot_error_by_code }}"
                                          class="plotly-graph-div"
                                          style="height:100%; width:100%;">
                                     </div>
                                 </div>
-                                <p class="card-category text-center"> Branch's values indicate the numbers of errors
+                                <p class="card-category text-center"> Branch's values indicate the number of errors
                                     found</p>
                             </div>
                         </div>
@@ -178,14 +198,13 @@ Template based in the following dashboard template:
             </div>
         </footer>
     </div>
-
+</div>
 </body>
 
 <!--   Core JS Files   -->
 <script src="assets/js/core/jquery.3.2.1.min.js" type="text/javascript"></script>
 <script src="assets/js/core/popper.min.js" type="text/javascript"></script>
 <script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
-
 <script src="assets/js/light-bootstrap-dashboard.js?v=2.0.0 " type="text/javascript"></script>
 
 {% if errors_found %}

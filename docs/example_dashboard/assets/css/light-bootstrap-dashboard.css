@@ -5392,25 +5392,63 @@ License - nucleoapp.com/license/
     padding: 20px 20px 20px 20px;
 }
 
+.card .card-plot {
+    padding: 5px 15px 5px 15px;
+}
+
+.legend {
+    text-align: center;
+    font-size: 20px;
+    padding: 15px 15px 0 15px;
+}
+
+.nowrap {
+    white-space: nowrap
+}
+
 @media screen and (max-width: 991px) {
     /* start of large tablet styles */
-    .card {
+    .card .card-plot {
         height: 450px;
     }
 }
 
+
 @media screen and (max-width: 767px) {
     /* start of medium tablet styles */
-    .card {
-        height: 400px;
+    .card .card-plot {
+        height: 450px;
     }
-
 }
 
 @media screen and (max-width: 479px) {
     /* start of phone styles */
-    .card {
-        height: 300px;
+    .card .card-plot {
+        height: 330px;
     }
+}
 
+.container-centered {
+    text-align: center;
+}
+
+
+.popover {
+    max-width: 70%;
+    text-align: center;
+}
+
+.severity-high,
+.severity-high:hover {
+    color: #EF553B !important;
+}
+
+.severity-medium,
+.severity-medium:hover {
+    color: #636EFA !important;
+}
+
+.severity-low,
+.severity-low:hover {
+    color: #00CC96 !important;
 }

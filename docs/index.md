@@ -1,8 +1,9 @@
 flake8-dashboard
 ================
 
-A flake8 plugin to generate a HTML dashboard with a report of all the
-flake8 violations.
+A flake8 plugin to generate an responsive HTML dashboard with a report
+of all the flake8 violations. The resulting dashboard is easy-to-read
+format across a variety of devices and web browsers.
 
 Installation
 ------------
@@ -55,7 +56,7 @@ Credits
 -------
 
 -   This package was created using the
-    [flake8-html](https://github.com/lordmauve/flake8-html) package as a
+    [flake8-html](https://github.com/lordmauve/flake8-html) package as
     template.
 -   The dashboard html page was created using the
     [light-bootstrap-dashboard](https://demos.creative-tim.com/light-bootstrap-dashboard/)

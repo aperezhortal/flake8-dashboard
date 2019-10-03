@@ -2,7 +2,9 @@
 flake8-dashboard
 ================
 
-A flake8 plugin to generate a HTML dashboard with a report of all the flake8 violations.
+A flake8 plugin to generate an responsive HTML dashboard with a report of
+all the flake8 violations. The resulting dashboard is easy-to-read format
+across a variety of devices and web browsers.
 
 Installation
 ============
@@ -29,12 +31,15 @@ Or to install the latest development version (master branch), run:
 Usage
 =====
 
-Run flake8 with the ``--format=dashboard`` option to create a nice-looking dashboard.
+Run flake8 with the ``--format=dashboard`` option to create a nice-looking
+dashboard.
 
 Options:
 
-- ``--outputdir=<output_dir>``: Directory to save the HTML output ("./flake8_dashboard" by default).
-- ``--debug-info``: Write additional debugging information as csv format (flake8 violations and aggregations).
+- ``--outputdir=<output_dir>``: Directory to save the HTML output
+  ("./flake8_dashboard" by default).
+- ``--debug-info``: Write additional debugging information as csv format
+  (flake8 violations and aggregations).
 - ``--title=<title>``: Set the dashboard's title. No title by default.
 
 Simple usage example:
