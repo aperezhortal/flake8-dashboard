@@ -196,7 +196,8 @@ class DashboardReporter(base.BaseFormatter):
             plot_id, plot_js = self._create_sunburst_plot_js(parents=errors_by_folder_or_file['parent'],
                                                              values=errors_by_folder_or_file['error_counts'],
                                                              ids=errors_by_folder_or_file['path'],
-                                                             labels=errors_by_folder_or_file['label'])
+                                                             labels=errors_by_folder_or_file['label'],
+                                                             textinfo='label + value + text')
 
             params["id_plot_error_by_folder"] = plot_id
             params["js_plot_error_by_folder"] = plot_js
@@ -205,11 +206,13 @@ class DashboardReporter(base.BaseFormatter):
             # Sunburst plot of number of errors by code
             errors_by_code = self._aggregate_by_code(error_db, self.code_description)
             errors_by_code.rename(columns={"counts": "error_counts"}, inplace=True)
+
             plot_id, plot_js = self._create_sunburst_plot_js(parents=errors_by_code['parent'],
                                                              values=errors_by_code['error_counts'],
                                                              ids=errors_by_code['code'],
                                                              labels=errors_by_code['code'],
-                                                             text=errors_by_code['code_description'].values)
+                                                             text=errors_by_code['code_description'].values,
+                                                             textinfo='label + value + text')
             params["id_plot_error_by_code"] = plot_id
             params["js_plot_error_by_code"] = plot_js
 
