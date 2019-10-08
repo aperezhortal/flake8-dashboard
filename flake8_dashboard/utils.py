@@ -113,7 +113,7 @@ def interp_to_previous(x, xp, fp, **kwargs):
     # 1. Get index of left value
     xp_shift = np.nextafter(xp, -np.inf)
 
-    x_new_indices = np.searchsorted(xp_shift, x, side='left')
+    x_new_indices = np.searchsorted(xp_shift, x, side="left")
 
     # 2. Clip x_new_indices so that they are within the range of x indices.
     x_new_indices = x_new_indices.clip(1, len(xp)).astype(np.intp)
@@ -128,7 +128,8 @@ def map_values_to_cmap(values, colormap=None, discrete=True):
     """
     colormap : Mx4 array-like
 
-    If a Mx4 array-like, the rows define the values (x, r, g, b), where r/g/b are number from 0-255.
+    If a Mx4 array-like, the rows define the values (x, r, g, b), where r/g/b are
+    number from 0-255.
 
     The x values must start with x=0, end with x=1.
 
@@ -136,12 +137,14 @@ def map_values_to_cmap(values, colormap=None, discrete=True):
     """
 
     if colormap is None:
-        colormap = np.asarray([
-            [0.0, 239, 85, 59],  # red
-            [0.5, 99, 110, 250],  # blue
-            [0.75, 0, 204, 150],  # green
-            [1.0, 0, 204, 150],  # green
-        ])
+        colormap = np.asarray(
+            [
+                [0.0, 239, 85, 59],  # red
+                [0.5, 99, 110, 250],  # blue
+                [0.75, 0, 204, 150],  # green
+                [1.0, 0, 204, 150],  # green
+            ]
+        )
 
         # 0.0-0.5 red!
         # 0.5-0.75 - blue
@@ -150,7 +153,9 @@ def map_values_to_cmap(values, colormap=None, discrete=True):
         colormap = np.asarray(colormap, dtype=float)
         values = np.asarray(values, dtype=float)
     except Exception:
-        raise TypeError("colormap and interpolation values must be convertible to an array.")
+        raise TypeError(
+            "colormap and interpolation values must be convertible to an array."
+        )
 
     shape = colormap.shape
     if len(shape) != 2 or shape[1] != 4:
@@ -164,9 +169,13 @@ def map_values_to_cmap(values, colormap=None, discrete=True):
     else:
         interpolator = np.interp
 
-    red = interpolator(values, colormap[:, 0], colormap[:, 1], left=0, right=255).astype(int)
+    red = interpolator(
+        values, colormap[:, 0], colormap[:, 1], left=0, right=255
+    ).astype(int)
     green = interpolator(values, colormap[:, 0], colormap[:, 2]).astype(int)
     blue = interpolator(values, colormap[:, 0], colormap[:, 3]).astype(int)
 
-    colorscale = [f"#{red[i]:02x}{green[i]:02x}{blue[i]:02x}" for i in range(values.size)]
+    colorscale = [
+        f"#{red[i]:02x}{green[i]:02x}{blue[i]:02x}" for i in range(values.size)
+    ]
     return colorscale
