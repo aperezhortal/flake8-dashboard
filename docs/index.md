@@ -1,8 +1,8 @@
 flake8-dashboard
 ================
 
-A flake8 plugin to generate an responsive HTML dashboard with a report
-of all the flake8 violations. The resulting dashboard is easy-to-read
+A flake8 plugin to generate a responsive HTML dashboard summarizing all
+the flake8 violations. The resulting dashboard has an easy-to-read
 format across a variety of devices and web browsers.
 
 Installation
@@ -21,7 +21,8 @@ Package Index, run:
 $ pip install flake8-dashboard
 ```
 
-Or to install the latest development version (master branch), run:
+Alternatively, to install the latest development version (master
+branch), run:
 
 ``` {.bash}
 $ pip install git+https://github.com/aperezhortal/flake8-dashboard
@@ -56,7 +57,7 @@ Credits
 -------
 
 -   This package was created using the
-    [flake8-html](https://github.com/lordmauve/flake8-html) package as
+    [flake8-html](https://github.com/lordmauve/flake8-html) package as a
     template.
 -   The dashboard html page was created using the
     [light-bootstrap-dashboard](https://demos.creative-tim.com/light-bootstrap-dashboard/)
