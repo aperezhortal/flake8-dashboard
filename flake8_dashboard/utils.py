@@ -2,6 +2,7 @@
 """Common utilities."""
 
 import os
+import sys
 
 import numpy as np
 from astroid import MANAGER, AstroidSyntaxError
@@ -47,6 +48,15 @@ def create_dir(path):
     """Create directory if it does not exist."""
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def normalize_path(path):
+    """Normalize path for regular expressions."""
+
+    if sys.platform.startswith('win'):
+        path = path.replace('/', '\\')
+
+    return path
 
 
 def full_split(_path):

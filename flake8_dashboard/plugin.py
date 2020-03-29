@@ -15,7 +15,7 @@ from flake8.formatting import base
 from jinja2 import Environment, PackageLoader
 from jsmin import jsmin
 
-from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap
+from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap, normalize_path
 
 jinja2_env = Environment(loader=PackageLoader("flake8_dashboard"))
 
@@ -145,7 +145,7 @@ class DashboardReporter(base.BaseFormatter):
             )
 
             if self.options.debug_info:
-                error_db.to_pickle(os.path.join(self.options.outputdir, "report.csv"))
+                error_db.to_pickle(os.path.join(self.options.outputdir, "report.pkl"))
 
             ############################################################################
             # Pie plot with errors by severity
@@ -194,8 +194,8 @@ class DashboardReporter(base.BaseFormatter):
             statements = errors_by_module["statements"].astype(float)
 
             penalty = (
-                error_penalty + warnings_penalty + low_severity_penalty
-            ) / statements
+                              error_penalty + warnings_penalty + low_severity_penalty
+                      ) / statements
 
             errors_by_module["rating"] = 10.0 - 10 * penalty
 
@@ -255,7 +255,7 @@ class DashboardReporter(base.BaseFormatter):
 
                 else:
                     errors_by_module.loc[path, "sector_size"] = (
-                        errors_by_module.loc[parent, "sector_size"] / n_childs[parent]
+                            errors_by_module.loc[parent, "sector_size"] / n_childs[parent]
                     )
             # The resulting sector sizes have rounding errors due to the floating point
             # operations.
@@ -275,7 +275,7 @@ class DashboardReporter(base.BaseFormatter):
 
                 percentual_diff = (max_level - levels[parent]) * 1e-5
                 diff_sector_size = (
-                    errors_by_module.loc[parent, "sector_size"] * percentual_diff
+                        errors_by_module.loc[parent, "sector_size"] * percentual_diff
                 )
 
                 errors_by_module.loc[parent, "sector_size"] += diff_sector_size
@@ -371,13 +371,13 @@ class DashboardReporter(base.BaseFormatter):
 
     @staticmethod
     def _create_sunburst_plot_js(
-        parents=None,
-        values=None,
-        ids=None,
-        labels=None,
-        text=None,
-        maxdepth=3,
-        **kwargs,
+            parents=None,
+            values=None,
+            ids=None,
+            labels=None,
+            text=None,
+            maxdepth=3,
+            **kwargs,
     ):
 
         extra_traces = kwargs.pop("extra_traces", list())
@@ -449,7 +449,7 @@ class DashboardReporter(base.BaseFormatter):
 
         for _path in intermediate_paths:
             sel = total_errors_by_file.index.get_level_values(0).str.match(
-                f"^{_path}\/"
+                normalize_path(fr"^{_path}{os.path.sep}")
             )
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
@@ -488,7 +488,7 @@ class DashboardReporter(base.BaseFormatter):
 
         aggregated_by_code = pandas.DataFrame(columns=error_codes.columns)
         for i, parent in enumerate(parents):
-            sel = error_codes.code.str.match(f"^{parent}")
+            sel = error_codes.code.str.match(rf"^{normalize_path(parent)}")
             row = [parent, error_codes[sel]["counts"].sum()]
             aggregated_by_code.loc[i + 1, ["code", "counts"]] = row
 
@@ -520,8 +520,8 @@ class DashboardReporter(base.BaseFormatter):
         )
         aggregated_by_code["severity"] = (
             aggregated_by_code["code"]
-            .apply(find_severity)
-            .apply(lambda x: SEVERITY_NAMES[x])
+                .apply(find_severity)
+                .apply(lambda x: SEVERITY_NAMES[x])
         )
 
         return aggregated_by_code
