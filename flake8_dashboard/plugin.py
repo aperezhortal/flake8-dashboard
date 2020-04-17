@@ -449,7 +449,7 @@ class DashboardReporter(base.BaseFormatter):
 
         for _path in intermediate_paths:
             sel = total_errors_by_file.index.get_level_values(0).str.match(
-                f"^{normalize_path(_path)}{os.path.sep}"
+                f"^{os.path.normpath(_path)}{os.path.sep}"
             )
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
@@ -488,7 +488,7 @@ class DashboardReporter(base.BaseFormatter):
 
         aggregated_by_code = pandas.DataFrame(columns=error_codes.columns)
         for i, parent in enumerate(parents):
-            sel = error_codes.code.str.match(f"^{normalize_path(parent)}")
+            sel = error_codes.code.str.match(f"^{os.path.normpath(parent)}")
             row = [parent, error_codes[sel]["counts"].sum()]
             aggregated_by_code.loc[i + 1, ["code", "counts"]] = row
 
