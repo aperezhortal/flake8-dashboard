@@ -34,5 +34,5 @@ jobs:
         displayName: 'Install dependencies'
 
       - script: |
-          flake8 -vvv --exit-zero --format=dashboard --outputdir=dashboard_output ./
+          flake8 --exit-zero --format=dashboard --outputdir=dashboard_output ./
         displayName: 'flake8-dashboard test'
