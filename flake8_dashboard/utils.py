@@ -3,7 +3,7 @@
 
 import os
 import sys
-from pathlib import PureWindowsPath, PurePosixPath
+from pathlib import PureWindowsPath, PurePosixPath, PurePath
 
 import numpy as np
 from astroid import MANAGER, AstroidSyntaxError
@@ -55,11 +55,9 @@ def relative_path(full_path, common_prefix):
     """Returns the relative path as a linux path to avoid problems with
     regular expressions in windows paths.
     """
-    path = os.path.relpath(full_path, common_prefix)
-    if sys.platform.startswith('win'):
-        path = str(PurePosixPath(PureWindowsPath(path)))
 
-    return path
+    rel_path = PurePath(full_path).relative_to(PurePath(common_prefix))
+    return rel_path.as_posix()
 
 
 def full_split(_path):

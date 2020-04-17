@@ -6,7 +6,7 @@ from flake8_dashboard.utils import relative_path
 def test_path_handling():
     """Test that the relative paths are handled always as Linux paths."""
 
-    home = PurePath(str(Path.cwd()))
+    home = Path.cwd()
     subdirs = ["test", "a", "b", "c"]
     full_path = home.joinpath(PurePath(*subdirs))
 
