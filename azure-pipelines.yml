@@ -3,28 +3,13 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
-pool:
-  vmImage: 'ubuntu-latest'
-strategy:
-  matrix:
-    Python36:
-      python.version: '3.6'
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+- template: ci_tools/run_tests.yml
+  parameters:
+    name: Linux_test
+    vmImage: ubuntu-18.04
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
-
-- script: |
-    pip install -U .
-  displayName: 'Install dependencies'
-
-- script: |
-    flake8 -vvv --format=dashboard --outputdir=dashboard_output ./
-  displayName: 'flake8-dashboard test'
+- template: ci_tools/run_tests.yml
+  parameters:
+    name: Win_test
+    vmImage: vs2017-win2016
