@@ -26,5 +26,5 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    flake8 --format=dashboard --outputdir=dashboard_output ./
+    flake8 -vvv --format=dashboard --outputdir=dashboard_output ./
   displayName: 'flake8-dashboard test'
