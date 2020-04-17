@@ -15,7 +15,7 @@ from flake8.formatting import base
 from jinja2 import Environment, PackageLoader
 from jsmin import jsmin
 
-from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap, normalize_path
+from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap, relative_path
 
 jinja2_env = Environment(loader=PackageLoader("flake8_dashboard"))
 
@@ -130,9 +130,8 @@ class DashboardReporter(base.BaseFormatter):
                 params["dashboard_title"] = os.path.abspath(common_prefix)
             else:
                 params["dashboard_title"] = self.options.title
-
             error_db["path"] = error_db["path"].apply(
-                lambda _path: os.path.relpath(_path, common_prefix)
+                lambda _path: relative_path(_path, common_prefix)
             )
 
             self.statements_per_file = self.statements_per_file.reset_index(
@@ -141,11 +140,11 @@ class DashboardReporter(base.BaseFormatter):
             self.statements_per_file.rename(columns={"index": "path"}, inplace=True)
 
             self.statements_per_file["path"] = self.statements_per_file["path"].apply(
-                lambda _path: os.path.relpath(_path, common_prefix)
+                lambda _path: relative_path(_path, common_prefix)
             )
 
             if self.options.debug_info:
-                error_db.to_pickle(os.path.join(self.options.outputdir, "report.pkl"))
+                error_db.to_pickle(os.path.join(self.options.outputdir, "report.csv"))
 
             ############################################################################
             # Pie plot with errors by severity
@@ -449,7 +448,7 @@ class DashboardReporter(base.BaseFormatter):
 
         for _path in intermediate_paths:
             sel = total_errors_by_file.index.get_level_values(0).str.match(
-                f"^{os.path.normpath(_path)}{os.path.sep}"
+                f"^{_path}\/"
             )
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
@@ -488,7 +487,7 @@ class DashboardReporter(base.BaseFormatter):
 
         aggregated_by_code = pandas.DataFrame(columns=error_codes.columns)
         for i, parent in enumerate(parents):
-            sel = error_codes.code.str.match(f"^{os.path.normpath(parent)}")
+            sel = error_codes.code.str.match(f"^{parent}")
             row = [parent, error_codes[sel]["counts"].sum()]
             aggregated_by_code.loc[i + 1, ["code", "counts"]] = row
 

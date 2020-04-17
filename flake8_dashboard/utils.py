@@ -3,6 +3,7 @@
 
 import os
 import sys
+from pathlib import PureWindowsPath, PurePosixPath
 
 import numpy as np
 from astroid import MANAGER, AstroidSyntaxError
@@ -50,11 +51,13 @@ def create_dir(path):
         os.makedirs(path)
 
 
-def normalize_path(path):
-    """Normalize path for regular expressions."""
-
+def relative_path(full_path, common_prefix):
+    """Returns the relative path as a linux path to avoid problems with
+    regular expressions in windows paths.
+    """
+    path = os.path.relpath(full_path, common_prefix)
     if sys.platform.startswith('win'):
-        path = path.replace('/', '\\')
+        path = str(PurePosixPath(PureWindowsPath(path)))
 
     return path
 
