@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 """A plugin for flake8 to generate HTML dashboard reports."""
+from collections import defaultdict
+
 import codecs
 import itertools
 import json
 import os
-from collections import defaultdict
-from distutils import dir_util
-from pathlib import PurePath
-
 import pandas
 import plotly
+import bs4
 from bs4 import BeautifulSoup
+from distutils import dir_util
 from flake8.formatting import base
 from jinja2 import Environment, PackageLoader
 from jsmin import jsmin
-
+from pathlib import PurePath
+from pkg_resources import parse_version
 from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap, relative_path
+
+if parse_version(bs4.__version__) < parse_version("4.9.0"):
+    raise Exception(
+        f"The minimum version required for BeautifulSoup is 4.9.0 "
+        f"but {str(parse_version(bs4.__version__))} is installed."
+    )
 
 jinja2_env = Environment(loader=PackageLoader("flake8_dashboard"))
 

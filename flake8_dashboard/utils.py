@@ -73,8 +73,8 @@ def full_split(_path):
 
     parts = _path.parts
 
-    for i in range(0, len(parts)):
-        intermediate_paths.append(PurePosixPath(*parts[0:i + 1]).as_posix())
+    for i in range(1, len(parts)):
+        intermediate_paths.append(PurePosixPath(*parts[0:i]).as_posix())
 
     return intermediate_paths
 
