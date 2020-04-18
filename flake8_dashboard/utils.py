@@ -2,11 +2,10 @@
 """Common utilities."""
 
 import os
-import sys
-from pathlib import PureWindowsPath, PurePosixPath, PurePath
 
 import numpy as np
 from astroid import MANAGER, AstroidSyntaxError
+from pathlib import PurePosixPath, PurePath
 
 
 class ASTWalker:
@@ -61,15 +60,21 @@ def relative_path(full_path, common_prefix):
 
 
 def full_split(_path):
-    """Return a list with all the intermediate paths."""
+    """
+    Return a list with all the intermediate paths.
+    The input path must be a POSIX path string (i.e., Linux or OSX).
+    """
     intermediate_paths = list()
-    tail = _path
 
-    while len(tail) > 0:
-        head, tail = os.path.split(_path)
-        _path = head
-        if len(_path) > 0:
-            intermediate_paths.append(_path)
+    _path = PurePosixPath(_path)
+
+    if _path.is_absolute():
+        _path = _path.relative_to("/")
+
+    parts = _path.parts
+
+    for i in range(0, len(parts)):
+        intermediate_paths.append(PurePosixPath(*parts[0:i + 1]).as_posix())
 
     return intermediate_paths
 

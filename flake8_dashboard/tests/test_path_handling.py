@@ -1,6 +1,6 @@
 from pathlib import PurePath, PurePosixPath, Path
 
-from flake8_dashboard.utils import relative_path
+from flake8_dashboard.utils import relative_path, full_split
 
 
 def test_path_handling():
@@ -13,3 +13,9 @@ def test_path_handling():
     rel_path = relative_path(full_path, home)
 
     assert rel_path == str(PurePosixPath(*subdirs))
+
+    assert list(full_split("/a/b/c/d")) == ['a', 'a/b', 'a/b/c', 'a/b/c/d']
+    assert list(full_split("a/b/c/d")) == ['a', 'a/b', 'a/b/c', 'a/b/c/d']
+
+
+

@@ -448,7 +448,7 @@ class DashboardReporter(base.BaseFormatter):
 
         for _path in intermediate_paths:
             sel = total_errors_by_file.index.get_level_values(0).str.match(
-                f"^{_path}\/"
+                f"^{_path}/"
             )
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
