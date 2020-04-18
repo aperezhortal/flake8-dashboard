@@ -149,9 +149,6 @@ class DashboardReporter(base.BaseFormatter):
                 lambda _path: relative_path(_path, common_prefix)
             )
 
-            if self.options.debug_info:
-                error_db.to_csv(os.path.join(self.options.outputdir, "report.csv"))
-
             ############################################################################
             # Pie plot with errors by severity
 
@@ -285,11 +282,6 @@ class DashboardReporter(base.BaseFormatter):
 
                 errors_by_module.loc[parent, "sector_size"] += diff_sector_size
 
-            if self.options.debug_info:
-                errors_by_module.to_csv(
-                    os.path.join(self.options.outputdir, "quality.csv")
-                )
-
             plot_id, plot_js = self._create_sunburst_plot_js(
                 parents=errors_by_module["parent"],
                 values=errors_by_module["sector_size"],
@@ -325,6 +317,15 @@ class DashboardReporter(base.BaseFormatter):
             params["js_plot_code_rating"] = plot_js
 
             self.write_index(params)
+
+            if self.options.debug_info:
+                file_path = os.path.join(self.options.outputdir, "quality.csv")
+                errors_by_module.to_csv(file_path)
+                print("Debug file saved: " + file_path)
+
+                file_path = os.path.join(self.options.outputdir, "report.csv")
+                error_db.to_csv(file_path)
+                print("Debug file saved: " + file_path)
 
     def write_index(self, params):
         report_template = jinja2_env.get_template("index.html")
