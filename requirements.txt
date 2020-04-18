@@ -1,3 +1,4 @@
+setuptools
 plotly
 beautifulsoup4>=4.9
 jsmin
