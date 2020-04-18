@@ -15,7 +15,13 @@ from jinja2 import Environment, PackageLoader
 from jsmin import jsmin
 from pathlib import PurePath
 
-from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap, relative_path
+from flake8_dashboard.utils import (
+    full_split,
+    create_dir,
+    ASTWalker,
+    map_values_to_cmap,
+    relative_path,
+)
 
 jinja2_env = Environment(loader=PackageLoader("flake8_dashboard"))
 
@@ -193,8 +199,8 @@ class DashboardReporter(base.BaseFormatter):
             statements = errors_by_module["statements"].astype(float)
 
             penalty = (
-                              error_penalty + warnings_penalty + low_severity_penalty
-                      ) / statements
+                error_penalty + warnings_penalty + low_severity_penalty
+            ) / statements
 
             errors_by_module["rating"] = 10.0 - 10 * penalty
 
@@ -254,7 +260,7 @@ class DashboardReporter(base.BaseFormatter):
 
                 else:
                     errors_by_module.loc[path, "sector_size"] = (
-                            errors_by_module.loc[parent, "sector_size"] / n_childs[parent]
+                        errors_by_module.loc[parent, "sector_size"] / n_childs[parent]
                     )
             # The resulting sector sizes have rounding errors due to the floating point
             # operations.
@@ -274,7 +280,7 @@ class DashboardReporter(base.BaseFormatter):
 
                 percentual_diff = (max_level - levels[parent]) * 1e-5
                 diff_sector_size = (
-                        errors_by_module.loc[parent, "sector_size"] * percentual_diff
+                    errors_by_module.loc[parent, "sector_size"] * percentual_diff
                 )
 
                 errors_by_module.loc[parent, "sector_size"] += diff_sector_size
@@ -370,13 +376,13 @@ class DashboardReporter(base.BaseFormatter):
 
     @staticmethod
     def _create_sunburst_plot_js(
-            parents=None,
-            values=None,
-            ids=None,
-            labels=None,
-            text=None,
-            maxdepth=3,
-            **kwargs,
+        parents=None,
+        values=None,
+        ids=None,
+        labels=None,
+        text=None,
+        maxdepth=3,
+        **kwargs,
     ):
 
         extra_traces = kwargs.pop("extra_traces", list())
@@ -447,9 +453,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         for _path in intermediate_paths:
-            sel = total_errors_by_file.index.get_level_values(0).str.match(
-                f"^{_path}/"
-            )
+            sel = total_errors_by_file.index.get_level_values(0).str.match(f"^{_path}/")
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
         aggregated_by_folder["path"] = aggregated_by_folder.index
@@ -519,8 +523,8 @@ class DashboardReporter(base.BaseFormatter):
         )
         aggregated_by_code["severity"] = (
             aggregated_by_code["code"]
-                .apply(find_severity)
-                .apply(lambda x: SEVERITY_NAMES[x])
+            .apply(find_severity)
+            .apply(lambda x: SEVERITY_NAMES[x])
         )
 
         return aggregated_by_code

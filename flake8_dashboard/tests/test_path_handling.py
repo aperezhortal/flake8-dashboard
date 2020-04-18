@@ -14,6 +14,6 @@ def test_path_handling():
 
     assert rel_path == str(PurePosixPath(*subdirs))
 
-    assert list(full_split("/a/b/c/d")) == ['a', 'a/b', 'a/b/c']
-    assert list(full_split("a/b/c/d")) == ['a', 'a/b', 'a/b/c']
+    assert list(full_split("/a/b/c/d")) == ["a", "a/b", "a/b/c"]
+    assert list(full_split("a/b/c/d")) == ["a", "a/b", "a/b/c"]
     assert list(full_split("a")) == []
