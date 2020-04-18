@@ -366,7 +366,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         soup = BeautifulSoup(div, features="html.parser")
-        return soup.div.div["id"], jsmin(soup.div.script.text)
+        return soup.div.div["id"], jsmin(soup.div.script.decode_contents())
 
     @staticmethod
     def _create_sunburst_plot_js(
@@ -409,7 +409,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         soup = BeautifulSoup(div, features="html.parser")
-        return soup.div.div["id"], jsmin(soup.div.script.text)
+        return soup.div.div["id"], jsmin(soup.div.script.decode_contents())
 
     @staticmethod
     def _aggregate_by_folder_or_file(error_db, logic="counts"):
