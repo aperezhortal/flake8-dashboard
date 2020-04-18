@@ -151,7 +151,7 @@ class DashboardReporter(base.BaseFormatter):
             )
 
             if self.options.debug_info:
-                error_db.to_pickle(os.path.join(self.options.outputdir, "report.csv"))
+                error_db.to_csv(os.path.join(self.options.outputdir, "report.csv"))
 
             ############################################################################
             # Pie plot with errors by severity
@@ -287,7 +287,7 @@ class DashboardReporter(base.BaseFormatter):
                 errors_by_module.loc[parent, "sector_size"] += diff_sector_size
 
             if self.options.debug_info:
-                errors_by_module.to_pickle(
+                errors_by_module.to_csv(
                     os.path.join(self.options.outputdir, "quality.csv")
                 )
 
