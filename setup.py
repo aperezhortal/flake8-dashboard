@@ -11,7 +11,7 @@ with open("requirements.txt") as fp:
 
 setup(
     name="flake8-dashboard",
-    version="0.1.3-dev0",
+    version="0.1.3",
     description="Generate different reports of flake8 violations",
     long_description=readme,
     author="Andres Perez Hortal",
