@@ -5,6 +5,7 @@ import os
 
 import numpy as np
 from astroid import MANAGER, AstroidSyntaxError
+from pathlib import PurePosixPath, PurePath
 
 
 class ASTWalker:
@@ -49,16 +50,31 @@ def create_dir(path):
         os.makedirs(path)
 
 
-def full_split(_path):
-    """Return a list with all the intermediate paths."""
-    intermediate_paths = list()
-    tail = _path
+def relative_path(full_path, common_prefix):
+    """Returns the relative path as a linux path to avoid problems with
+    regular expressions in windows paths.
+    """
 
-    while len(tail) > 0:
-        head, tail = os.path.split(_path)
-        _path = head
-        if len(_path) > 0:
-            intermediate_paths.append(_path)
+    rel_path = PurePath(full_path).relative_to(PurePath(common_prefix))
+    return rel_path.as_posix()
+
+
+def full_split(_path):
+    """
+    Return a list with all the intermediate paths.
+    The input path must be a POSIX path string (i.e., Linux or OSX).
+    """
+    intermediate_paths = list()
+
+    _path = PurePosixPath(_path)
+
+    if _path.is_absolute():
+        _path = _path.relative_to("/")
+
+    parts = _path.parts
+
+    for i in range(1, len(parts)):
+        intermediate_paths.append(PurePosixPath(*parts[0:i]).as_posix())
 
     return intermediate_paths
 

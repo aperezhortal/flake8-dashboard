@@ -1,0 +1,16 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+jobs:
+
+  - template: ci_tools/run_tests.yml
+    parameters:
+      name: Linux_test
+      vmImage: ubuntu-18.04
+
+  - template: ci_tools/run_tests.yml
+    parameters:
+      name: Win_test
+      vmImage: vs2017-win2016

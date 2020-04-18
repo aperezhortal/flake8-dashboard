@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 """A plugin for flake8 to generate HTML dashboard reports."""
+from collections import defaultdict
+
 import codecs
 import itertools
 import json
 import os
-from collections import defaultdict
-from distutils import dir_util
-from pathlib import PurePath
-
 import pandas
 import plotly
+import bs4
 from bs4 import BeautifulSoup
+from distutils import dir_util
 from flake8.formatting import base
 from jinja2 import Environment, PackageLoader
 from jsmin import jsmin
+from pathlib import PurePath
+from pkg_resources import parse_version
+from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap, relative_path
 
-from flake8_dashboard.utils import full_split, create_dir, ASTWalker, map_values_to_cmap
+if parse_version(bs4.__version__) < parse_version("4.9.0"):
+    raise Exception(
+        f"The minimum version required for BeautifulSoup is 4.9.0 "
+        f"but {str(parse_version(bs4.__version__))} is installed."
+    )
 
 jinja2_env = Environment(loader=PackageLoader("flake8_dashboard"))
 
@@ -130,9 +137,8 @@ class DashboardReporter(base.BaseFormatter):
                 params["dashboard_title"] = os.path.abspath(common_prefix)
             else:
                 params["dashboard_title"] = self.options.title
-
             error_db["path"] = error_db["path"].apply(
-                lambda _path: os.path.relpath(_path, common_prefix)
+                lambda _path: relative_path(_path, common_prefix)
             )
 
             self.statements_per_file = self.statements_per_file.reset_index(
@@ -141,11 +147,11 @@ class DashboardReporter(base.BaseFormatter):
             self.statements_per_file.rename(columns={"index": "path"}, inplace=True)
 
             self.statements_per_file["path"] = self.statements_per_file["path"].apply(
-                lambda _path: os.path.relpath(_path, common_prefix)
+                lambda _path: relative_path(_path, common_prefix)
             )
 
             if self.options.debug_info:
-                error_db.to_pickle(os.path.join(self.options.outputdir, "report.csv"))
+                error_db.to_csv(os.path.join(self.options.outputdir, "report.csv"))
 
             ############################################################################
             # Pie plot with errors by severity
@@ -194,8 +200,8 @@ class DashboardReporter(base.BaseFormatter):
             statements = errors_by_module["statements"].astype(float)
 
             penalty = (
-                error_penalty + warnings_penalty + low_severity_penalty
-            ) / statements
+                              error_penalty + warnings_penalty + low_severity_penalty
+                      ) / statements
 
             errors_by_module["rating"] = 10.0 - 10 * penalty
 
@@ -255,7 +261,7 @@ class DashboardReporter(base.BaseFormatter):
 
                 else:
                     errors_by_module.loc[path, "sector_size"] = (
-                        errors_by_module.loc[parent, "sector_size"] / n_childs[parent]
+                            errors_by_module.loc[parent, "sector_size"] / n_childs[parent]
                     )
             # The resulting sector sizes have rounding errors due to the floating point
             # operations.
@@ -275,13 +281,13 @@ class DashboardReporter(base.BaseFormatter):
 
                 percentual_diff = (max_level - levels[parent]) * 1e-5
                 diff_sector_size = (
-                    errors_by_module.loc[parent, "sector_size"] * percentual_diff
+                        errors_by_module.loc[parent, "sector_size"] * percentual_diff
                 )
 
                 errors_by_module.loc[parent, "sector_size"] += diff_sector_size
 
             if self.options.debug_info:
-                errors_by_module.to_pickle(
+                errors_by_module.to_csv(
                     os.path.join(self.options.outputdir, "quality.csv")
                 )
 
@@ -367,17 +373,17 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         soup = BeautifulSoup(div, features="html.parser")
-        return soup.div.div["id"], jsmin(soup.div.script.text)
+        return soup.div.div["id"], jsmin(soup.div.script.decode_contents())
 
     @staticmethod
     def _create_sunburst_plot_js(
-        parents=None,
-        values=None,
-        ids=None,
-        labels=None,
-        text=None,
-        maxdepth=3,
-        **kwargs,
+            parents=None,
+            values=None,
+            ids=None,
+            labels=None,
+            text=None,
+            maxdepth=3,
+            **kwargs,
     ):
 
         extra_traces = kwargs.pop("extra_traces", list())
@@ -410,7 +416,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         soup = BeautifulSoup(div, features="html.parser")
-        return soup.div.div["id"], jsmin(soup.div.script.text)
+        return soup.div.div["id"], jsmin(soup.div.script.decode_contents())
 
     @staticmethod
     def _aggregate_by_folder_or_file(error_db, logic="counts"):
@@ -449,7 +455,7 @@ class DashboardReporter(base.BaseFormatter):
 
         for _path in intermediate_paths:
             sel = total_errors_by_file.index.get_level_values(0).str.match(
-                f"^{_path}\/"
+                f"^{_path}/"
             )
             aggregated_by_folder.loc[_path] = total_errors_by_file[sel].sum()
 
@@ -520,8 +526,8 @@ class DashboardReporter(base.BaseFormatter):
         )
         aggregated_by_code["severity"] = (
             aggregated_by_code["code"]
-            .apply(find_severity)
-            .apply(lambda x: SEVERITY_NAMES[x])
+                .apply(find_severity)
+                .apply(lambda x: SEVERITY_NAMES[x])
         )
 
         return aggregated_by_code

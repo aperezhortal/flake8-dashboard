@@ -1,5 +1,6 @@
+setuptools
 plotly
-beautifulsoup4
+beautifulsoup4>=4.9
 jsmin
 jinja2
 pip>=9.0.1
