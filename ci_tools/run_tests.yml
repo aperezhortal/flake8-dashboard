@@ -39,7 +39,7 @@ jobs:
         displayName: 'Run pytest'
 
       - script: |
-          flake8 --exit-zero --debug --format=dashboard --outputdir=dash_out ./
+          flake8 -v --exit-zero --debug --format=dashboard --outputdir=dash_out ./
         displayName: 'flake8-dashboard test'
 
       - script: |
