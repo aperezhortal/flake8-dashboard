@@ -544,7 +544,7 @@ class DashboardReporter(base.BaseFormatter):
         )
 
         options.add_option(
-            "--debug-info",
+            "--debug",
             help="Write additional debugging information as csv format.",
             parse_from_config=True,
             default=False,
