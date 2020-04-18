@@ -39,7 +39,8 @@ jobs:
         displayName: 'Run pytest'
 
       - script: |
-          flake8 -v --exit-zero --debug --format=dashboard --outputdir=dash_out ./
+          git clone --depth=20 https://github.com/aperezhortal/pylint --branch only_tests --single-branch pylint_tests
+          flake8 --exit-zero --debug --format=dashboard --outputdir=dash_out pylint_tests
         displayName: 'flake8-dashboard test'
 
       - script: |
