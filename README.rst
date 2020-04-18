@@ -38,7 +38,7 @@ Options:
 
 - ``--outputdir=<output_dir>``: Directory to save the HTML output
   ("./flake8_dashboard" by default).
-- ``--debug-info``: Write additional debugging information as csv format
+- ``--debug``: Write additional debugging information as csv format
   (flake8 violations and aggregations).
 - ``--title=<title>``: Set the dashboard's title. No title by default.
 
