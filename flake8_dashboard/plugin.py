@@ -318,7 +318,7 @@ class DashboardReporter(base.BaseFormatter):
 
             self.write_index(params)
 
-            if self.options.debug_info:
+            if self.options.debug:
                 file_path = os.path.join(self.options.outputdir, "quality.csv")
                 errors_by_module.to_csv(file_path)
                 print("Debug file saved: " + file_path)
