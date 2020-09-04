@@ -56,6 +56,8 @@ def find_severity(code):
 class DashboardReporter(base.BaseFormatter):
     """A plugin for flake8 to render errors as HTML reports."""
 
+    name = "DashboardReporter"
+
     def format(self, error):
         pass
 
