@@ -79,7 +79,7 @@ class DashboardReporter(base.BaseFormatter):
         with open(code_descriptoion_file) as json_file:
             self.code_description.update(json.load(json_file))
 
-        self.statements_per_file = pandas.Series()
+        self.statements_per_file = pandas.Series(dtype='float64')
         self._astroid_walker = ASTWalker()
 
     def handle(self, error):
