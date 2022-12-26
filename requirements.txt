@@ -5,7 +5,7 @@ jsmin
 jinja2
 pip>=9.0.1
 bump2version
-wheel==0.29.0
+wheel==0.38.1
 tox>=2.6.0
 requests
 pandas
