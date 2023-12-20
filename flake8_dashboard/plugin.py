@@ -158,7 +158,7 @@ class DashboardReporter(base.BaseFormatter):
             error_severity = pandas.DataFrame(error_severity.value_counts())
 
             plot_id, plot_js = self._create_pie_plot_js(
-                error_severity.index, error_severity.severity.values
+                error_severity.index, error_severity['count'].values
             )
             params["id_severity_pie_plot"] = plot_id
             params["js_severity_pie_plot"] = plot_js
@@ -250,7 +250,7 @@ class DashboardReporter(base.BaseFormatter):
             n_childs = errors_by_module["parent"].value_counts()
 
             sector_by_parent = n_childs.copy()
-            for path, parent in errors_by_module["parent"].iteritems():
+            for path, parent in errors_by_module["parent"].items():
                 if parent == "":
                     sector_by_parent[parent] = 1
                     errors_by_module.loc[path, "sector_size"] = 1000
@@ -345,17 +345,25 @@ class DashboardReporter(base.BaseFormatter):
     @staticmethod
     def _create_pie_plot_js(labels, values):
         colors = [SEVERITY_COLORS[sev] for sev in labels]
+        sum_value = values.sum()
         trace = plotly.graph_objs.Pie(
             labels=labels,
             values=values,
             hoverinfo="label+text",
             textinfo="text",
+            # ~ text=list(map(f"{value}<br>({value * 100 / values.sum():.3g}%)",x))
+            # ~ text=list(map('{:.2f}%'.format,x))
             text=[
-                f"{value}<br>({value * 100 / values.sum():.3g}%)" for value in values
+                "%s<br>(%.3f%%)" % (value, value * 100 /sum_value) for value in values
             ],
+            # ~ text=[
+                # ~ f"{value}<br>({value * 100 / values.sum():.3g}%)" for value in values
+            # ~ ],
             textfont=dict(size=22),
             marker={"line": {"width": 2}, "colors": colors},
         )
+
+
 
         layout = plotly.graph_objs.Layout(
             margin=plotly.graph_objs.layout.Margin(t=1, l=1, r=1, b=1), showlegend=False
