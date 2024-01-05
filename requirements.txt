@@ -3,10 +3,10 @@ plotly
 beautifulsoup4
 jsmin
 jinja2
-pip>=9.0.1
+pip
 bump2version
 wheel
-tox>=2.6.0
+#tox>=2.6.0
 requests
 pandas
 flake8
